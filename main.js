@@ -9,9 +9,16 @@ const app = http.createServer((request, response) => {
 
   if (pathname === "/") {
     if (queryData.id === undefined) {
-      fs.readFile(`data/${queryData.id}`, "utf8", (err, description) => {
+      fs.readdir("./data", (err, files) => {
         const title = "Welcome";
-        description = "Hello, Node.js";
+        const description = "Hello, Node.js";
+        let list = "<ul>";
+        let i = 0;
+        while (i < files.length) {
+          list += `<li><a href="/?id=${files[i]}">${files[i]}</a></li>`;
+          i++;
+        }
+        list += "</ul>";
         const template = `
         <!doctype html>
         <html>
@@ -21,11 +28,7 @@ const app = http.createServer((request, response) => {
         </head>
         <body>
           <h1><a href="/">WEB</a></h1>
-          <ol>
-            <li><a href="/?id=HTML">HTML</a></li>
-            <li><a href="/?id=CSS">CSS</a></li>
-            <li><a href="/?id=JavaScript">JavaScript</a></li>
-          </ol>
+          ${list}
           <h2>${title}</h2>
           <p>${description}</p>
         </body>
@@ -35,29 +38,34 @@ const app = http.createServer((request, response) => {
         response.end(template);
       });
     } else {
-      fs.readFile(`data/${queryData.id}`, "utf8", (err, description) => {
-        const title = queryData.id;
-        const template = `
-        <!doctype html>
-        <html>
-        <head>
-          <title>WEB1 - ${title}</title>
-          <meta charset="utf-8">
-        </head>
-        <body>
-          <h1><a href="/">WEB</a></h1>
-          <ol>
-            <li><a href="/?id=HTML">HTML</a></li>
-            <li><a href="/?id=CSS">CSS</a></li>
-            <li><a href="/?id=JavaScript">JavaScript</a></li>
-          </ol>
-          <h2>${title}</h2>
-          <p>${description}</p>
-        </body>
-        </html>
-        `;
-        response.writeHead(200);
-        response.end(template);
+      fs.readdir("./data", (err, files) => {
+        let list = "<ul>";
+        let i = 0;
+        while (i < files.length) {
+          list += `<li><a href="/?id=${files[i]}">${files[i]}</a></li>`;
+          i++;
+        }
+        list += "</ul>";
+        fs.readFile(`data/${queryData.id}`, "utf8", (err, description) => {
+          const title = queryData.id;
+          const template = `
+          <!doctype html>
+          <html>
+          <head>
+            <title>WEB1 - ${title}</title>
+            <meta charset="utf-8">
+          </head>
+          <body>
+            <h1><a href="/">WEB</a></h1>
+            ${list}
+            <h2>${title}</h2>
+            <p>${description}</p>
+          </body>
+          </html>
+          `;
+          response.writeHead(200);
+          response.end(template);
+        });
       });
     }
   } else {
