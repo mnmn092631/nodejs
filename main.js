@@ -72,7 +72,6 @@ const app = http.createServer((request, response) => {
   } else if (pathname === "/create") {
     fs.readdir("./data", (err, files) => {
       const title = "WEB - create";
-      const description = "Hello, Node.js";
       const list = templateList(files);
       const template = templateHTML(
         title,
@@ -123,6 +122,23 @@ const app = http.createServer((request, response) => {
         );
         response.writeHead(200);
         response.end(template);
+      });
+    });
+  } else if (pathname === "/update_process") {
+    let body = "";
+    request.on("data", (data) => {
+      body += data;
+    });
+    request.on("end", () => {
+      const post = qs.parse(body);
+      const id = post.id;
+      const title = post.title;
+      const description = post.description;
+      fs.rename(`data/${id}`, `data/${title}`, (err) => {
+        fs.writeFile(`data/${title}`, description, "utf8", (err) => {
+          response.writeHead(302, { Location: `/?id=${title}` });
+          response.end();
+        });
       });
     });
   } else {
